@@ -6,6 +6,7 @@
  */
 function firstTempsWith(pastWeather, label, limit) {
     const res = []
+    // <=> for (const weather of pastWeather[Symbol.iterator]()) {
     for (const weather of pastWeather) {
         if(weather.desc.toLowerCase().includes(label)) { // filtering
             res.push(weather.tempC)                      // mapping
