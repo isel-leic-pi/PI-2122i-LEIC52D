@@ -2,7 +2,7 @@
 
 module.exports = {
     flatten,
-    loop
+    yol
 }
 
 /**
@@ -12,8 +12,20 @@ function flatten(arr) {
     return arr.reduce((p, c) => p.concat(c),[])
 }
 
-function loop() {
-
+/**
+ * 
+ * @param {*} val Initial value
+ * @param {Function} test Predicate: val -> boolean
+ * @param {Function} ufunc Update function
+ * @param {Function} bfunc Body function
+ * @returns 
+ */
+function yol(val, test, ufunc, bfunc){
+    for(;;){
+        if(!test(val))return
+        bfunc(val)
+        val = ufunc(val)
+    }
 }
 
 // Hypotetical implementation of reduce
