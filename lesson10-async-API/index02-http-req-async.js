@@ -7,9 +7,9 @@ const fetch = require('node-fetch')
  * @returns {Promise.<Number>} The size of the body response
  */
 function getBodySize(url) {
-    return fetch(url)                   // Promise<Response>
-        .then(res => res.text()) // Promise<Promise<String>>
-        .then(body => body.length)
+    return fetch(url)              // Promise<Response>
+        .then(res => res.text())   // Promise<Promise<String>>
+        .then(body => body.length) // Promise<Number>
 }
 
 const urls = {
@@ -20,10 +20,8 @@ const urls = {
 
 Object
     .keys(urls)
-    .map(name => {
+    .forEach(name => {
         console.log(`Requesting ${urls[name]}...`)
-        return name
+        getBodySize(urls[name])
+            .then(size => console.log(`${name} size = ${size}`))
     })
-    .forEach(name => getBodySize(urls[name])
-        .then(size => console.log(`${name} size = ${size}`))
-    )

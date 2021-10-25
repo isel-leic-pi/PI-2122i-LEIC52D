@@ -22,8 +22,8 @@ const urls = {
 Object
     .keys(urls)
     .forEach(prop => {
-        console.log('Request to ' + prop + '...')
+        console.log(`Requesting ${urls[prop]}...`)
         const size = getBodyLengthSync(urls[prop])
-        console.log(prop + ' body response has length of ' + size)
+        console.log(`${prop} size = ${size}`)
     })
 
