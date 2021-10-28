@@ -1,0 +1,15 @@
+{
+  "name": "lesson10-async-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index02-http-req-async.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "node-fetch": "^2.6.5",
+    "sync-request": "^6.1.0"
+  }
+}
