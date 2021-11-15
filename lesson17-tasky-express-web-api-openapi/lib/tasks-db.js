@@ -11,7 +11,8 @@ module.exports = {
     getAll,
     getTask,
     deleteTask,
-    insertTask
+    insertTask,
+    updateTask
 }
 
 /**
@@ -88,7 +89,7 @@ function deleteTask(username, id) {
  * @typedef Task
  * @type {Object}
  * @property {String} id Unique Id
- * @property {Date} due Number of days to due task
+ * @property {Date} dueDate Number of days to due task
  * @property {String} title 
  * @property {String} description
  */
@@ -111,15 +112,38 @@ function newTask(days, title, description) {
 
 /**
  * @param {String} username
- * @param {Number} due Number of days to task due.
+ * @param {Number} days Number of days to task due.
  * @param {String} title 
  * @param {String} descriptions
  * @returns {Promise.<Task>} Fulfills with the new Task after save on disk.
  */
-function insertTask(username, due, title, description) {     
-    const task = new newTask(due, title, description)
+function insertTask(username, days, title, description) {     
+    const task = new newTask(days, title, description)
     const file = `task-${username}-${task.id}-${task.title}.json`
     return fs
         .writeFile(dataPath + file, JSON.stringify(task))
         .then(() => task)
+}
+
+/**
+ * @param {String} username 
+ * @param {String} id 
+ * @param {Number} days 
+ * @param {String} title 
+ * @param {String} description 
+ * @returns Promise<Task> with the already updated values
+ */
+ function updateTask(username, id,days, title, description) {   
+    const dt = new Date()
+    dt.setDate(dt.getDate() + days)  
+    return getTask(username,id)
+        .then(task=>{
+            const file = `task-${username}-${task.id}-${task.title}.json`
+            task.title=title
+            task.dueDate=dt, 
+            task.description=description
+            return fs
+                .writeFile(dataPath + file, JSON.stringify(task))
+                .then(() => task)
+        })
 }

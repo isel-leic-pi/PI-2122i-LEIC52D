@@ -79,3 +79,15 @@ test('Crate and delete a task', async () => {
     const allAfter = await tasks.getAll('rambo')
     expect(allAfter.length).toBe(1)
 })
+
+test('Crate and update a task', async () => {
+    const test = await tasks.insertTask('pedro', 1, 'test', 'testing')
+    const get = await tasks.getTask('pedro',test.id)
+    expect(get.title).toBe('test')
+    expect(get.description).toBe('testing')
+    const updated = await tasks.updateTask('pedro',test.id,2,'testdone','tested')
+    expect(updated.title).toBe('testdone')
+    expect(updated.description).toBe('tested')
+    const allAfter = await tasks.getAll('pedro')
+    expect(allAfter.length).toBe(1)    
+})
