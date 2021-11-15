@@ -17,7 +17,7 @@ router.get('/users/:username/tasks/:taskId', (req, res, next) => {
         .catch(next)
 })
 
-router.delete('/users/:username/tasks/:taskId', (req, res) => {
+router.delete('/users/:username/tasks/:taskId', (req, res, next) => {
     tasks
         .deleteTask(req.params.username, req.params.taskId)
         .then(() => res.json({

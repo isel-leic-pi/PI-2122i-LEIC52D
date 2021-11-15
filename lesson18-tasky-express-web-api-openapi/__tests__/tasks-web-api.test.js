@@ -5,6 +5,10 @@ const express = require('express')
 const fs = require('fs/promises')
 const tasks = require('./../lib/tasks-db')
 const tasksRouter = require('./../lib/tasks-web-api')
+const jestOpenAPI = require('jest-openapi').default
+
+// Load an OpenAPI file (YAML or JSON) into this plugin
+jestOpenAPI(process.cwd() +  '/openapi.yaml');
 
 const app = express()
 app.use(tasksRouter)
@@ -72,5 +76,8 @@ test('Get a single task for username gamboa', () => {
     .then(resp => {
         expect(resp.body.title).toBe('swim-mile')
         expect(resp.body.description).toBe('Achieve 1 mile swimming open water.')
+        // Assert that the HTTP response satisfies the OpenAPI spec
+        expect(resp).toSatisfyApiSpec()
+        expect(resp.body).toSatisfySchemaInApiSpec('task')
     })
 })
