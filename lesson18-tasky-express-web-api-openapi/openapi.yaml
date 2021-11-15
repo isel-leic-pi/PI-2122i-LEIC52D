@@ -31,6 +31,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/task"
+        "404":
+          description: Response body should be an error object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
     delete:
       summary: Delete a single task
       responses:
@@ -88,4 +94,11 @@ components:
         title:
           type: string
         description:
+          type: string
+    error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
           type: string

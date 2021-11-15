@@ -26,12 +26,17 @@ router.delete('/users/:username/tasks/:taskId', (req, res, next) => {
         .catch(next)
 })
 
-router.use((err, req, resp, next) => {
-   resp
-    .status(err.status || 500)
-    .json({
-        message: err.message
-    }) 
+router.put('/users/:username/tasks/:taskId', (req, res, next) => {
+    tasks
+        .updateTask(
+            req.params.username,
+            req.params.taskId,
+            req.body.days,
+            req.body.title,
+            req.body.description
+        )
+        .then(task => res.json(task))
+        .catch(next)
 })
 
 module.exports = router

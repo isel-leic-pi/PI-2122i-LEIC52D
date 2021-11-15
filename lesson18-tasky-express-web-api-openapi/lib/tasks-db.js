@@ -141,15 +141,15 @@ function insertTask(username, days, title, description) {
  * @param {String} description 
  * @returns Promise<Task> with the already updated values
  */
- function updateTask(username, id,days, title, description) {   
-    const dt = new Date()
-    dt.setDate(dt.getDate() + days)  
-    return getTask(username,id)
+function updateTask(username, id, days, title, description) {   
+    const dt = days ? new Date() : undefined
+    if(dt) dt.setDate(dt.getDate() + days)  
+    return getTask(username, id)
         .then(task=>{
             const file = `task-${username}-${task.id}-${task.title}.json`
-            task.title=title
-            task.dueDate=dt, 
-            task.description=description
+            task.title = title || task.title
+            task.dueDate = dt || task.dueDate 
+            task.description = description || task.description
             return fs
                 .writeFile(dataPath + file, JSON.stringify(task))
                 .then(() => task)
