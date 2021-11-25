@@ -1,7 +1,6 @@
 'use strict'
 
-const tasks = require('./../lib/tasks-db')
-const fs = require('fs/promises')
+const tasks = require('./../lib/tasks-in-mem')
 
 function insertDummies() {
     const prms = [
@@ -13,20 +12,8 @@ function insertDummies() {
     return Promise.all(prms)
 }
 
-const DATA_PATH = './__tests__/data/'
-
 beforeAll(() => { 
-    tasks.changePath(DATA_PATH)
-    return fs
-        .mkdir(DATA_PATH, { recursive: true }) // create folder if not exists
-        .then(() => insertDummies())
-})
-
-afterAll(() => {
-    return fs
-        .readdir(DATA_PATH)
-        .then(files => files.map(f => fs.unlink(DATA_PATH + f)))
-        .then(prms => Promise.all(prms))
+    return insertDummies()
 })
 
 test('Get all tasks', () => {
@@ -65,7 +52,7 @@ test('Get unkown task for unkown user', () => {
     return tasks
         .getTask('muadib', taskId)
         .then(tasks => { throw Error('Assertion failed. It should not succeed getting a task.') })
-        .catch(err => expect(err.message).toBe('No tasks for muadib'))
+        .catch(err => expect(err.message).toBe('User not available for muadib'))
 })
 
 test('Crate and delete a task', async () => {

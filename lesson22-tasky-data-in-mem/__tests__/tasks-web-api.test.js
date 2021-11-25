@@ -2,8 +2,7 @@
 
 const request = require('supertest')
 const express = require('express')
-const fs = require('fs/promises')
-const tasks = require('./../lib/tasks-db')
+const tasks = require('./../lib/tasks-in-mem')
 const jestOpenAPI = require('jest-openapi').default
 
 // Load an OpenAPI file (YAML or JSON) into this plugin
@@ -25,20 +24,8 @@ function insertDummies() {
     return Promise.all(prms)
 }
 
-const DATA_PATH = './__tests__/data/'
-
 beforeAll(() => { 
-    tasks.changePath(DATA_PATH)
-    return fs
-        .mkdir(DATA_PATH, { recursive: true }) // create folder if not exists
-        .then(() => insertDummies())
-})
-
-afterAll(() => {
-    return fs
-        .readdir(DATA_PATH)
-        .then(files => files.map(f => fs.unlink(DATA_PATH + f)))
-        .then(prms => Promise.all(prms))
+    return insertDummies()
 })
 
 test('Get all tasks for username gamboa', () => {
@@ -60,7 +47,7 @@ test('Get a single task for unknown username', () => {
         .expect(404)
         .then(resp => {
             expect(resp).toSatisfyApiSpec()
-            expect(resp.body.message).toBe('No tasks for YYYYYY')
+            expect(resp.body.message).toBe('User not available for YYYYYY')
         })
 })
 
