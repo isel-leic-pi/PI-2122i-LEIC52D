@@ -11,7 +11,7 @@ const openapi = YAML.load('./openapi.yaml')
  */
 module.exports = function(app) {
     app.use(express.json()) // => Parses HTTP request body and populates req.body
-    app.use('/', tasksRouter)
+    app.use(tasksRouter)
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapi))
 
     // eslint-disable-next-line no-unused-vars
