@@ -1,0 +1,104 @@
+openapi: '3.0.2'
+info:
+  title: Tasky
+  description: Web API to manage user tasks.
+  version: 1.0.0
+paths:
+  /users/{username}/tasks:
+    parameters:
+      - $ref: "#/components/parameters/usernameParam"
+    get:
+      summary: Get all tasks for given username
+      responses:
+        "200":
+          description: Response body should be an array of tasks for given username
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/task"
+  /users/{username}/tasks/{taskId}:
+    parameters:
+      - $ref: "#/components/parameters/usernameParam"
+      - $ref: "#/components/parameters/taskIdParam"
+    get:
+      summary: Get a single task for given username
+      responses:
+        "200":
+          description: Response body should be a task object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/task"
+        "404":
+          description: Response body should be an error object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+    delete:
+      summary: Delete a single task
+      responses:
+        "200":
+          description: Response body empty
+    put:
+      summary: Updates a single task
+      responses:
+        "200":
+          description: Response body with updated Task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/task"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                days:
+                  type: number
+                title:
+                  type: string
+                description:
+                  type: string
+components:
+  parameters:
+    usernameParam:
+      name: username
+      in: path
+      required: true
+      schema:
+        type: string
+    taskIdParam:
+      name: taskId
+      in: path
+      required: true
+      schema:
+        type: string
+  schemas:
+    task:
+      type: object
+      required:
+        - id
+        - dueDate
+        - title
+        - description
+      properties:
+        id:
+          type: string
+        dueDate:
+          type: string
+          format: date-time
+        title:
+          type: string
+        description:
+          type: string
+    error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
