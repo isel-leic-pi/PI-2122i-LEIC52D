@@ -2,6 +2,7 @@
 
 module.exports = {
     getAll,
+    getUsers,
     getTask,
     deleteTask,
     insertTask,
@@ -13,6 +14,10 @@ module.exports = {
  * and the value is an array of Task instances.
  */
 const tasks = {}
+
+function getUsers() {
+    return Promise.resolve(Object.keys(tasks))
+}
 
 /**
  * @param {String} username
