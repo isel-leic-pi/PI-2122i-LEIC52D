@@ -1,7 +1,7 @@
 'use strict'
 
 const router = require('express').Router()
-const tasks = require('./tasks-in-mem')
+const tasks = require('./tasks-in-elastic')
 
 router.get('/', (req, res) => {
     res.render('index')

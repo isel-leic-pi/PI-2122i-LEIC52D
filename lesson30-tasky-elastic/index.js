@@ -13,7 +13,7 @@ insertDummies()
     }))
 
 function insertDummies() {
-    const tasks = require('./lib/tasks-in-mem')
+    const tasks = require('./lib/tasks-in-elastic')
     const prms = [
         tasks.insertTask('gamboa', 7, 'swim-mile', 'Achieve 1 mile swimming open water.'),
         tasks.insertTask('gamboa', 3, 'pi-workout', 'Complete the first workout of Web Dev course.'),
