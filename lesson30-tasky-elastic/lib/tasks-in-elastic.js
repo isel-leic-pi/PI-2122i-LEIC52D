@@ -1,5 +1,7 @@
 'use strict'
 
+const fetch = require('node-fetch')
+
 module.exports = {
     getAll,
     getUsers,
@@ -10,13 +12,17 @@ module.exports = {
 }
 
 /**
- * A container for tasks where the key is the username
- * and the value is an array of Task instances.
+ * URL of tasks index in ElasticSearch database.
  */
-const tasks = {}
+const TASKS_URL = 'http://localhost:9200/tasks/'
 
+/**
+ * @returns Promise.<Array.<String>> Fullfiled with an array of string objects with the usernames
+ */
 function getUsers() {
-    return Promise.resolve(Object.keys(tasks))
+    return fetch(TASKS_URL + '_search')
+        .then(res => res.json())
+        .then(data => data.hits.hits.map(item => Object.keys(item._source)[0]))
 }
 
 /**
@@ -24,16 +30,11 @@ function getUsers() {
  * @returns {Promise.<Array.<Task>>}
  */
 function getAll(username) {
-    const userTasks = tasks[username]
-    return !userTasks
-        ? rejectPromise(404, 'There is no User for username: ' + username)
-        : Promise.resolve(userTasks)
-}
-
-function rejectPromise(status, msg) {
-    const err = new Error(msg)
-    err.status = status
-    return Promise.reject(err)
+    return fetch(TASKS_URL + '_search')
+        .then(res => res.json())
+        .then(data => data.hits.hits.filter(item => 
+            Object.keys(item._source)[0] === username))
+        .then(arr => Object.values(arr[0]._source)[0])
 }
 
 /**
@@ -42,15 +43,16 @@ function rejectPromise(status, msg) {
  * @returns {Promise.<Task>} Fulfills with the Task object for given id
  */
 function getTask(username, id) {
-    const userTasks = tasks[username]
-    if(!userTasks) {
-        return rejectPromise(404, 'User not available for ' + username)
-    }    
-    const ts = userTasks.filter(t => t.id == id)
-    if(ts.length == 0) {
-        return rejectPromise(404, 'No task with id ' + id) 
-    }
-    return Promise.resolve(ts[0])
+    return getAll(username)
+        .then(tasks => tasks.filter(t => t.id === id))
+        .then(tasks => { 
+            if(tasks.length == 0) {
+                const err = new Error('No task with id ' + id) 
+                err.status = 404
+                throw err
+            }
+            else return tasks[0]
+        })
 }
 
 /**
@@ -59,11 +61,7 @@ function getTask(username, id) {
  * @returns {Promise.<undefined>} Fulfills with `undefined` upon success.
  */
 function deleteTask(username, id) {
-    return getTask(username, id)
-        .then(() => {
-            const userTasks = tasks[username]
-            tasks[username] = userTasks.filter(t => t.id != id)
-        })
+    return Promise.reject()
 }
 
 /**
