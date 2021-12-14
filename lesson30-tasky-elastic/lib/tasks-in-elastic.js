@@ -3,6 +3,8 @@
 const fetch = require('node-fetch')
 
 module.exports = {
+    setIndex,
+    getUrl,
     getAll,
     getUsers,
     getTask,
@@ -14,13 +16,21 @@ module.exports = {
 /**
  * URL of tasks index in ElasticSearch database.
  */
-const TASKS_URL = 'http://localhost:9200/tasks/'
+let tasksUrl = 'http://localhost:9200/tasks/'
+
+function setIndex(index) {
+    tasksUrl = 'http://localhost:9200/' + index + '/'
+}
+
+function getUrl() {
+    return tasksUrl
+}
 
 /**
  * @returns Promise.<Array.<String>> Fullfiled with an array of string objects with the usernames
  */
 function getUsers() {
-    return fetch(TASKS_URL + '_search')
+    return fetch(tasksUrl + '_search')
         .then(res => res.json())
         .then(data => data.hits.hits.map(item => item._source.username))
         .then(arr => [...new Set(arr)]) // remove repetitions
@@ -31,7 +41,7 @@ function getUsers() {
  * @returns {Promise.<Array.<Task>>}
  */
 function getAll(username) {
-    return fetch(TASKS_URL + '_search')
+    return fetch(tasksUrl + '_search')
         .then(res => res.json())
         .then(data => 
             data.hits.hits.filter(item => item._source.username === username))
@@ -47,7 +57,7 @@ function getAll(username) {
  * @returns {Promise.<Task>} Fulfills with the Task object for given id
  */
 function getTask(username, id) {
-    return fetch(TASKS_URL + '_doc/' + id)
+    return fetch(tasksUrl + '_doc/' + id)
         .then(res => { return res.status != 200
             ? res.json().then(() => { throw Error(res.statusText)})
             : res.json()
@@ -72,7 +82,7 @@ function getTask(username, id) {
  */
 function deleteTask(username, id) {
     return getTask(username, id) // First check that task exists
-        .then(() => fetch(TASKS_URL + '_doc/' + id + '?refresh=true', { method: 'delete'}))
+        .then(() => fetch(tasksUrl + '_doc/' + id + '?refresh=true', { method: 'delete'}))
 }
 
 /**
@@ -110,7 +120,7 @@ function newTask(username, days, title, description) {
  */
 function insertTask(username, days, title, description) {
     const task = new newTask(username, days, title, description)
-    return fetch(TASKS_URL + '_doc' + '?refresh=true', {
+    return fetch(tasksUrl + '_doc' + '?refresh=true', {
         method: 'post',
         body: JSON.stringify(task),
         headers: { 'Content-Type': 'application/json' },
@@ -143,7 +153,7 @@ function updateTask(username, id, days, title, description) {
             task.description = description || task.description
             return task
         })
-        .then(task => fetch(TASKS_URL + '_doc/' + task.id + '?refresh=true', {
+        .then(task => fetch(tasksUrl + '_doc/' + task.id + '?refresh=true', {
             method: 'PUT',
             body: JSON.stringify(task),
             headers: { 'Content-Type': 'application/json' },

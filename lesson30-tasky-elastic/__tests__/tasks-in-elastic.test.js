@@ -1,5 +1,6 @@
 'use strict'
 
+const fetch = require('node-fetch')
 const db = require('./../lib/tasks-in-elastic')
 let tasks
 
@@ -10,17 +11,19 @@ function insertDummies() {
         db.insertTask('luke', 20, 'peaa', 'Finish the book of Patterns of Enterprise Application Architecture by Martin Fowler.'),
         db.insertTask('vader', 4, 'room-manage', 'Manage all books and stuff in my room')
     ]
-    return Promise.all(prms).then(arr => tasks = arr)
+    return Promise.all(prms).then(ts => tasks = ts)
 }
 
 beforeAll(() => { 
-    return insertDummies()
+    db.setIndex('tasks-test')
+    /*
+     * First drop and recreate test Index 
+     */
+    return fetch(db.getUrl(), { method: 'delete'})
+        .then(() => fetch(db.getUrl(), { method: 'put' }))
+        .then(data => insertDummies())
 })
 
-afterAll(() => {
-    const prms = tasks.map(t => db.deleteTask(t.username, t.id))
-    return Promise.all(prms)
-})
 
 test('Get all tasks', () => {
     return Promise.all([
@@ -74,7 +77,7 @@ test('Create and delete a task', async () => {
 })
 
 
-test('Crate and update a task', async () => {
+test('Create and update a task', async () => {
     const test = await db.insertTask('pedro', 1, 'test', 'testing')
     const get = await db.getTask('pedro',test.id)
     expect(get.title).toBe('test')

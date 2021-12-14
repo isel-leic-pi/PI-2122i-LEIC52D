@@ -1,8 +1,9 @@
 'use strict'
 
+const fetch = require('node-fetch')
 const request = require('supertest')
 const express = require('express')
-const tasks = require('./../lib/tasks-in-mem')
+const db = require('./../lib/tasks-in-elastic')
 const jestOpenAPI = require('jest-openapi').default
 
 // Load an OpenAPI file (YAML or JSON) into this plugin
@@ -16,16 +17,22 @@ require('./../lib/tasky-routes')(app)
 
 function insertDummies() {
     const prms = [
-        tasks.insertTask('gamboa', 7, 'swim-mile', 'Achieve 1 mile swimming open water.'),
-        tasks.insertTask('gamboa', 3, 'pi-workout', 'Complete the first workout of Web Dev course.'),
-        tasks.insertTask('gamboa', 20, 'peaa', 'Finish the book of Patterns of Enterprise Application Architecture by Martin Fowler.'),
-        tasks.insertTask('rambo', 4, 'room-manage', 'Manage all books and stuff in my room')
+        db.insertTask('gamboa', 7, 'swim-mile', 'Achieve 1 mile swimming open water.'),
+        db.insertTask('gamboa', 3, 'pi-workout', 'Complete the first workout of Web Dev course.'),
+        db.insertTask('gamboa', 20, 'peaa', 'Finish the book of Patterns of Enterprise Application Architecture by Martin Fowler.'),
+        db.insertTask('rambo', 4, 'room-manage', 'Manage all books and stuff in my room')
     ]
     return Promise.all(prms)
 }
 
 beforeAll(() => { 
-    return insertDummies()
+    db.setIndex('tasks-test')
+    /*
+     * First drop and recreate test Index 
+     */
+    return fetch(db.getUrl(), { method: 'delete'})
+        .then(() => fetch(db.getUrl(), { method: 'put' }))
+        .then(data => insertDummies())
 })
 
 test('Get all tasks for username gamboa', () => {
@@ -52,7 +59,7 @@ test('Get a single task for unknown username', () => {
 })
 
 test('Get a single task for username gamboa', () => {
-    return tasks
+    return db
         .getAll('gamboa')
         .then(tasks => {
             const all = tasks.filter(t => t.title.includes('swim'))
@@ -75,7 +82,7 @@ test('Get a single task for username gamboa', () => {
 })
 
 test('Updates a task for username rambo', () => {
-    return tasks
+    return db
         .getAll('rambo')
         .then(tasks => {
             expect(tasks[0].title).toBe('room-manage')
