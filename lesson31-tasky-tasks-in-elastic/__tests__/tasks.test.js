@@ -55,7 +55,7 @@ test('Get unkown task for unkown user', () => {
         .catch(err => expect(err.message).toBe('User not available for muadib'))
 })
 
-test('Crate and delete a task', async () => {
+test('Create and delete a task', async () => {
     const shoes = await tasks.insertTask('rambo', 3, 'run-shoes', 'Buy new running shoes')
     const all = await tasks.getAll('rambo')
     expect(all.length).toBe(2)
