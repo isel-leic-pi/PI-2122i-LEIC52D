@@ -7,9 +7,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="bootstrap.min.css" rel="stylesheet">
-    <script>
-        alert('Ola Mundo')
-    </script>
+    <script type="text/javascript" src="tasky.js"></script>
 </head>
 
 <body>
@@ -39,7 +37,7 @@
         <div class="row">
             <div class="col-sm-10">
     <h2>New Task:</h2>
-    <form method="post">
+    
         <div class="row">
             <div class="col">
                 <input type="text" class="form-control" placeholder="Title" name="title">
@@ -51,10 +49,10 @@
                 <input type="date" class="form-control" placeholder="Due Date" name="dueDate">
             </div>
             <div class="col">
-                <input type="submit" class="form-control btn-primary">
+                <input type="submit" class="form-control btn-primary" id="btNewTask" value="New Task">
             </div>
         </div>
-    </form>
+    
     <br>
     <hr>
     <h2>Tasks:</h2>
@@ -66,18 +64,23 @@
                 <th scope="col">Due Date</th>
             </tr>
         </thead>
+
         <tbody>
+
             <tr>
+                <td><button class="btn btn-danger">Delete</button></td>
                 <td><a href="tasks/dxenql6l1uf">swim-mile</a></td>
                 <td> Achieve 1 mile swimming open water. </td>
                 <td> 13/01/2022 </td>
             </tr>
             <tr>
+                <td><button class="btn btn-danger">Delete</button></td>
                 <td><a href="tasks/figwufk9ah">pi-workout</a></td>
                 <td> Complete the first workout of Web Dev course. </td>
                 <td> 09/01/2022 </td>
             </tr>
             <tr>
+                <td><button class="btn btn-danger">Delete</button></td>
                 <td><a href="tasks/36lvjp3ni3f">peaa</a></td>
                 <td> Finish the book of Patterns of Enterprise Application Architecture by Martin Fowler. </td>
                 <td> 26/01/2022 </td>
@@ -85,6 +88,7 @@
 
 
         </tbody>
+
     </table>
 </div>
         </div>
