@@ -3,6 +3,8 @@
 module.exports = {
     getAll,
     getUsers,
+    insertUser,
+    deleteUser,
     getTask,
     deleteTask,
     insertTask,
@@ -17,6 +19,26 @@ const tasks = {}
 
 function getUsers() {
     return Promise.resolve(Object.keys(tasks))
+}
+
+/**
+ * @param {String} username 
+ * @returns {Promise.<undefined>} Fulfills with `undefined` upon success.
+ */
+function insertUser(username) {
+    if(tasks[username]) return rejectPromise(409, username + ' already exists!')
+    tasks[username] = []
+    return Promise.resolve(undefined)
+}
+
+/**
+ * @param {String} username 
+ * @returns {Promise.<undefined>} Fulfills with `undefined` upon success.
+ */
+function deleteUser(username) {
+    if(!tasks[username]) return rejectPromise(404, username + ' not available!') 
+    delete tasks[username]
+    return Promise.resolve(undefined)
 }
 
 /**

@@ -16,6 +16,15 @@ beforeAll(() => {
     return insertDummies()
 })
 
+test('Insert new user and delete it', () => {
+    return tasks
+        .insertUser('vegeta')
+        .then(() => tasks.getAll('vegeta'))
+        .then(arr => expect(arr.length).toBe(0))
+        .then(() => tasks.deleteUser('vegeta'))
+        .catch(err => { throw Error('Assertion failed on deleteUser!')})
+})
+
 test('Get all tasks', () => {
     return Promise.all([
             tasks.getAll('gamboa'),
