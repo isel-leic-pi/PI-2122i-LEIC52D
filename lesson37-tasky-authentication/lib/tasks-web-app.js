@@ -7,7 +7,12 @@ router.get('/', (req, res) => {
     res.render('index')
 })
 
-router.get('/users', (req, res, next) => {
+router.get('/users', getUsers)
+router.get('/users/:username/tasks', getUserTasks)
+router.get('/users/:username/tasks/:id', getUserTaskDetails)
+router.post('/users/:username/tasks', postUserTasks)
+
+function getUsers(req, res, next) {
     tasks
         .getUsers()
         .then(users => {
@@ -19,9 +24,9 @@ router.get('/users', (req, res, next) => {
             return res.render('users', {'users': model})
         })
         .catch(next)
-})
+}
 
-router.get('/users/:username/tasks', (req, res,next) => {
+function getUserTasks(req, res,next) {
     tasks
         .getAll(req.params.username)
         .then(tasks => {
@@ -34,19 +39,18 @@ router.get('/users/:username/tasks', (req, res,next) => {
             return res.render('tasks', {'tasks': tasks})
         })
         .catch(next)
-})
+}
 
-
-router.get('/users/:username/tasks/:id', (req, res,next) => {
+function getUserTaskDetails(req, res,next) {
     tasks
         .getTask(req.params.username, req.params.id)
         .then(task => {
             return res.render('taskDetails', task)
         })
         .catch(next)
-})
+}
 
-router.post('/users/:username/tasks', (req, res,next) => {
+function postUserTasks(req, res,next) {
     const dueDate = req.body.dueDate // string
     const days = Math.ceil((new Date(dueDate) - Date.now()) / (24*60*60*1000))
     tasks
@@ -58,6 +62,6 @@ router.post('/users/:username/tasks', (req, res,next) => {
             .end())
         // <=> .then(task => res.redirect(`/users/${req.params.username}/tasks/${task.id}`)
         .catch(next)
-})
+}
 
 module.exports = router
