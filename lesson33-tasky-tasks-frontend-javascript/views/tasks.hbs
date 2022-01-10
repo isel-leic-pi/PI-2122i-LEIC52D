@@ -1,3 +1,5 @@
+<script src="/tasky-delete.js" type="text/javascript"></script>
+
 <div class="col-sm-10">
     <h2>New Task:</h2>
     <form method="post">
@@ -30,6 +32,7 @@
         <tbody>
             {{#each tasks}}
             <tr>
+                <td><button class="btn btn-danger" data-task-id="{{id}}">DELETE</button></td>
                 <td><a href="tasks/{{id}}">{{title}}</a></td>
                 <td> {{description}} </td>
                 <td> {{dueDate}} </td>

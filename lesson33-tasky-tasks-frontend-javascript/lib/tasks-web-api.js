@@ -3,6 +3,13 @@
 const router = require('express').Router()
 const tasks = require('./tasks-in-mem')
 
+router.put('/users/:username', (req, res, next) => {
+    tasks
+        .insertUser(req.params.username)
+        .then(() => res.status(201).end())
+        .catch(next)
+})
+
 router.get('/users/:username/tasks', (req, res, next) => {
     tasks
         .getAll(req.params.username)

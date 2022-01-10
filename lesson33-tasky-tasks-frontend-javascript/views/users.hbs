@@ -1,6 +1,16 @@
-<div class="col-sm-10">
+<script src="/tasky-insert-user.js" type="text/javascript"></script>
+
+<div class="col-sm-10">  
+    <div class="row">
+        <div class="col">
+            <input type="text" class="form-control" placeholder="username" name="username">
+        </div>
+        <div class="col">
+            <input type="submit" class="form-control btn-primary" value="Add User" id="btnAddUser">
+        </div>
+    </div>
     <h2>Users:</h2>
-    <ul>
+    <ul id="listOfUsers">
         {{#each users}}
             <li>
                 <a href="{{path}}">
