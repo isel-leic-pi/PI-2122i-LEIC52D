@@ -1,7 +1,8 @@
 'use strict'
 
 module.exports = {
-    getAll,
+    getAllTasks,
+    getUser,
     getUsers,
     insertUser,
     deleteUser,
@@ -13,9 +14,27 @@ module.exports = {
 
 /**
  * A container for tasks where the key is the username
- * and the value is an array of Task instances.
+ * and the value is an object with two properties: 
+ *    * tasks - array of Task instances.
+ *    * password - hashed password with sha256
+ *    * username
  */
 const tasks = {}
+/**
+ * @typedef User
+ * @type {Object}
+ * @property {String} username Unique Id
+ * @property {String} password hashed password
+ * @property {Array.<Task>} tasks Array of Tasks
+ */
+/**
+ * @param {String} username 
+ * @returns {Promise.<User>}
+ */
+function getUser(username) {
+    if(!tasks[username]) return rejectPromise(404, username + ' not available!') 
+    return Promise.resolve(tasks[username])
+}
 
 function getUsers() {
     return Promise.resolve(Object.keys(tasks))
@@ -23,11 +42,16 @@ function getUsers() {
 
 /**
  * @param {String} username 
+ * * @param {String} pass
  * @returns {Promise.<undefined>} Fulfills with `undefined` upon success.
  */
-function insertUser(username) {
+function insertUser(username, pass) {
     if(tasks[username]) return rejectPromise(409, username + ' already exists!')
-    tasks[username] = []
+    tasks[username] = {
+        tasks: [],
+        password: pass,
+        username
+    }
     return Promise.resolve(undefined)
 }
 
@@ -45,11 +69,11 @@ function deleteUser(username) {
  * @param {String} username
  * @returns {Promise.<Array.<Task>>}
  */
-function getAll(username) {
+function getAllTasks(username) {
     const userTasks = tasks[username]
     return !userTasks
         ? rejectPromise(404, 'There is no User for username: ' + username)
-        : Promise.resolve(userTasks)
+        : Promise.resolve(userTasks.tasks)
 }
 
 function rejectPromise(status, msg) {
@@ -68,7 +92,7 @@ function getTask(username, id) {
     if(!userTasks) {
         return rejectPromise(404, 'User not available for ' + username)
     }    
-    const ts = userTasks.filter(t => t.id == id)
+    const ts = userTasks.tasks.filter(t => t.id == id)
     if(ts.length == 0) {
         return rejectPromise(404, 'No task with id ' + id) 
     }
@@ -83,8 +107,8 @@ function getTask(username, id) {
 function deleteTask(username, id) {
     return getTask(username, id)
         .then(() => {
-            const userTasks = tasks[username]
-            tasks[username] = userTasks.filter(t => t.id != id)
+            const userTasks = tasks[username].tasks
+            tasks[username].tasks = userTasks.filter(t => t.id != id)
         })
 }
 
@@ -107,7 +131,7 @@ function newTask(days, title, description) {
     const dt = new Date()
     dt.setDate(dt.getDate() + days)
     return {
-        id: Math.random().toString(36).substr(2), 
+        id: Math.random().toString(36).substring(2), 
         dueDate: dt, 
         title, 
         description}
@@ -122,7 +146,7 @@ function newTask(days, title, description) {
  */
 function insertTask(username, days, title, description) {     
     const task = new newTask(days, title, description)
-    const userTasks = tasks[username]
+    const userTasks = tasks[username].tasks
     if(userTasks) {
         userTasks.push(task)
     } else {

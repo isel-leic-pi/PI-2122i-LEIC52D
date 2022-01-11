@@ -28,7 +28,7 @@ function getUsers(req, res, next) {
 
 function getUserTasks(req, res,next) {
     tasks
-        .getAll(req.params.username)
+        .getAllTasks(req.params.username)
         .then(tasks => {
             tasks = tasks.map(t => { return {
                 'id': t.id,

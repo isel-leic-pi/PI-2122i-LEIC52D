@@ -16,6 +16,8 @@ require('./../lib/tasky-routes')(app)
 
 function insertDummies() {
     const prms = [
+        tasks.insertUser('gamboa', 'xpto'),
+        tasks.insertUser('rambo', 'bb'),
         tasks.insertTask('gamboa', 7, 'swim-mile', 'Achieve 1 mile swimming open water.'),
         tasks.insertTask('gamboa', 3, 'pi-workout', 'Complete the first workout of Web Dev course.'),
         tasks.insertTask('gamboa', 20, 'peaa', 'Finish the book of Patterns of Enterprise Application Architecture by Martin Fowler.'),
@@ -53,7 +55,7 @@ test('Get a single task for unknown username', () => {
 
 test('Get a single task for username gamboa', () => {
     return tasks
-        .getAll('gamboa')
+        .getAllTasks('gamboa')
         .then(tasks => {
             const all = tasks.filter(t => t.title.includes('swim'))
             if(all.length == 0) throw Error('Missing swim task!')
@@ -76,7 +78,7 @@ test('Get a single task for username gamboa', () => {
 
 test('Updates a task for username rambo', () => {
     return tasks
-        .getAll('rambo')
+        .getAllTasks('rambo')
         .then(tasks => {
             expect(tasks[0].title).toBe('room-manage')
             expect(tasks[0].description).toBe('Manage all books and stuff in my room')

@@ -29,6 +29,6 @@ test('Create and delete a task', async () => {
     expect(actual.title).toBe('run-shoes')
     expect(actual.description).toBe('Buy new running shoes')
     await tasks.deleteTask('vader', shoes.id)
-    const allAfter = await tasks.getAll('vader')
+    const allAfter = await tasks.getAllTasks('vader')
     expect(allAfter.length).toBe(1)
 })

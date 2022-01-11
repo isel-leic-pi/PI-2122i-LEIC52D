@@ -6,7 +6,7 @@ let elasticUrl = 'http://localhost:9200/tasks'
 module.exports = {
     setIndex,
     getUrl,
-    getAll,
+    getAllTasks,
     getUsers,
     getTask,
     deleteTask,
@@ -30,7 +30,7 @@ function getUsers() {
  * @param {String} username
  * @returns {Promise.<Array.<Task>>}
  */
-function getAll(username) {
+function getAllTasks(username) {
     return fetch(elasticUrl + '/_search?q=username:' + username)
         .then(resp => checkStatus(200, resp))
         .then(resp => resp.json())
