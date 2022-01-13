@@ -5,8 +5,12 @@ const tasks = require('./tasks-in-mem')
 
 router.put('/users/:username', (req, res, next) => {
     tasks
-        .insertUser(req.params.username)
-        .then(() => res.status(201).end())
+        .insertUser(req.params.username, req.body.pass)
+        .then(() => tasks.getUser(req.params.username))
+        .then(user => req.logIn(user, err => {
+            if(err) next(err)
+            else res.status(201).end()
+        }))
         .catch(next)
 })
 

@@ -3,11 +3,24 @@
 const router = require('express').Router()
 const tasks = require('./tasks-in-mem')
 
-router.get('/', (req, res) => {
-    res.render('index')
+router.get('/', (req, res) => { res.render('index') })
+router.get('/signup', (req, res) => {
+    const alert = req.session.alert
+    delete req.session.alert
+    res.render('signup', { alert }) 
 })
-
 router.get('/users', getUsers)
+router.use((req, res, next) => {
+    if(!req.user) {
+        req.session.alert = {
+            title: 'Accedd Forbiden!',
+            message: 'You should login/signup first to access tasks features.',
+            kind: 'danger'
+        }
+        res.redirect('/signup')
+    }
+    else next()
+})
 router.get('/users/:username/tasks', getUserTasks)
 router.get('/users/:username/tasks/:id', getUserTaskDetails)
 router.post('/users/:username/tasks', postUserTasks)

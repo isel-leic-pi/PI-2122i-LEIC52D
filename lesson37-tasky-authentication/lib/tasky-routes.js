@@ -1,6 +1,9 @@
 'use strict'
 
 const express = require('express')
+const passport = require('passport')
+
+const tasks = require('./tasks-in-mem')
 const tasksWebApi = require('./tasks-web-api')
 const tasksWebApp = require('./tasks-web-app')
 const swaggerUi = require('swagger-ui-express')
@@ -16,18 +19,33 @@ module.exports = function(app) {
      */
     app.set('view engine', 'hbs')
     /*
-     * Add routes 
+     * Add Middleware 
      */
     app.use(express.json()) // => Parses HTTP request body and populates req.body
     app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
     app.use(express.static('public'))
-    // app.get('/tasky.css', (req, res) => { res.sendFile(path.join(process.cwd(), './views/tasky.css')) })
-    // app.get('/todo.jfif', (req, res) => { res.sendFile(path.join(process.cwd(), './views/todo.jfif')) })
+    app.use(require('cookie-parser')())
+    app.use(require('express-session')({ secret: 'keyboard cat', resave: true, saveUninitialized: true }))
+    app.use(passport.initialize())
+    app.use(passport.session())
 
-    app.use('/', tasksWebApp)
+    passport.serializeUser((user, done) => {
+        done(null, user.username)
+    })
+    passport.deserializeUser((username, done) => {
+        tasks
+            .getUser(username)
+            .then(user => done(null, user))
+            .catch(err => done(err))
+    })
+
+    /**
+     * Add Route Handlers
+     */
     app.use('/api', tasksWebApi)
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapi))
-
+    app.use('/', tasksWebApp)
+    
     // eslint-disable-next-line no-unused-vars
     app.use((err, req, resp, _next) => {
         resp
