@@ -4,20 +4,35 @@ const express = require('express')
 const router = express.Router()
 const tasks = require('./tasks-in-mem')
 
-router.use(checkAlert)
+router.use(checkLocals)
 router.get('/', (req, res) => { res.render('index') })
 router.get('/signup', getSignup)
 router.put('/signup/:username', putSignup)
+router.post('/login', postLogin)
+router.post('/logout', postLogout)
 router.get('/users', getUsers)
 router.use('/users/:username', checkAuthentication)
 router.get('/users/:username/tasks', getUserTasks)
 router.get('/users/:username/tasks/:id', getUserTaskDetails)
 router.post('/users/:username/tasks', postUserTasks)
 
-function checkAlert(req, res, next) {
-    const alert = req.session.alert
-    delete req.session.alert
-    res.locals.alert = alert
+function sessionAlert(session, kind, title, message) {
+    session.alert = {
+        title,
+        message,
+        kind
+    }
+}
+
+function checkLocals(req, res, next) {
+    if(req.session.alert) {
+        const alert = req.session.alert
+        delete req.session.alert
+        res.locals.alert = alert    
+    }
+    if(req.user) {
+        res.locals.user = req.user
+    }
     next()
 }
 
@@ -27,19 +42,11 @@ function checkAlert(req, res, next) {
  */
 function checkAuthentication(req, res, next) {
     if(!req.user) {
-        req.session.alert = {
-            title: 'Accedd Forbiden!',
-            message: 'You should login/signup first to access tasks features.',
-            kind: 'danger'
-        }
+        sessionAlert(req.session, 'danger', 'Accedd Forbiden!', 'You should login/signup first to access tasks features.')
         return res.redirect('/signup')
     }
     if(req.user.username != req.params.username) {
-        req.session.alert = {
-            title: 'Accedd Forbiden!',
-            message: 'You can only access your tasks. You cannot access other users!',
-            kind: 'warning'
-        }
+        sessionAlert(req.session, 'warning', 'Accedd Forbiden!', 'You can only access your tasks. You cannot access other users!')
         return res.redirect(req.headers.referer)
     }
     next()
@@ -48,6 +55,38 @@ function checkAuthentication(req, res, next) {
 function getSignup(req, res) {
     res.render('signup') 
 }
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
+function postLogout(req, res) {
+    req.logout() // Remove user from session
+    sessionAlert(req.session, 'success', 'Logged out', 'User logged out with success!')
+    res.redirect(req.headers.referer)
+}
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
+function postLogin(req, res, next) {
+    tasks
+        .getUser(req.body.username)
+        .then(user => {
+            if(user.password != req.body.password) {
+                sessionAlert(req.session, 'danger', 'Bad Credentials!', 'Username or password incorrect!')
+                res.status(409)
+                res.statusMessage = 'Bad Credentials'
+                res.end()
+            } else {
+                req.logIn(user, err => {
+                    if(err) return next(err)
+                    sessionAlert(req.session, 'success', 'Logged in!', req.body.username + ' has logged in with success!')
+                    res.status(201).end()
+                })
+            }
+        })
+        .catch(next)
+}
 
 function putSignup (req, res, next) {
     tasks
@@ -55,11 +94,7 @@ function putSignup (req, res, next) {
         .then(() => tasks.getUser(req.params.username))
         .then(user => req.logIn(user, err => {
             if(err) return next(err)
-            req.session.alert = {
-                title: 'Signup Successfully!',
-                message: req.params.username + ' has signned up with success!',
-                kind: 'success'
-            }    
+            sessionAlert(req.session, 'success', 'Signup Successfully!', req.params.username + ' has signned up with success!')
             res.status(201).end()
         }))
         .catch(next)

@@ -9,6 +9,29 @@ function setup() {
     document
         .getElementById('btSignup')
         .addEventListener('click', () => handlerSignup(inUsername, inPassword))
+    document
+        .getElementById('btLogin')
+        .addEventListener('click', () => handlerLogin(inUsername, inPassword))
+}
+
+async function handlerLogin(inUsername, inPassword) {
+    try{
+        const path = '/login'
+        const password = await digest(inPassword.value)
+        const resp = await fetch(path, { 
+            method: 'POST',
+            body: JSON.stringify({ username: inUsername.value, password }),
+            headers: { 'Content-Type': 'application/json' }
+        })
+        if(resp.status != 201) {
+            const body = await resp.text()
+            showAlert('ERROR', resp.statusText + '/n' + body)
+            return
+        }
+        document.location.href = '/users'
+    } catch(err) {
+        showAlert('ERROR', err)
+    }
 }
 
 async function handlerSignup(inUsername, inPassword) {
@@ -22,12 +45,12 @@ async function handlerSignup(inUsername, inPassword) {
         })
         if(resp.status != 201) {
             const body = await resp.text()
-            alert('ERROR: ' + resp.statusText + '/n' + body)
+            showAlert('ERROR', resp.statusText + '/n' + body)
             return
         }
         document.location.href = '/users'
     } catch(err) {
-        alert(err)
+        showAlert('ERROR', err)
     }
 }
 
@@ -38,4 +61,14 @@ async function digest(message) {
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('') // convert bytes to hex string
     return hashHex
 }
-  
+
+function showAlert(title, message, kind = 'danger') {
+    const html = `<div class="alert alert-${kind} alert-dismissible fade show" role="alert">
+                    <strong>${title}</strong>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>`
+    document
+        .getElementById('alertPanel')
+        .innerHTML = html
+}

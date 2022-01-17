@@ -16,7 +16,7 @@
         <p>Web App to manage user tasks!</p>
     </div>
 
-    <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+    <nav class="navbar navbar-expand-sm navbar-light bg-light">
         <div class="container-fluid">
             <ul class="navbar-nav">
                 <li class="nav-item">
@@ -30,6 +30,12 @@
                 </li>
             </ul>
         </div>
+        {{#if user}}
+            <h1 class="display-6">{{user.username}}&nbsp;&nbsp;</h1>              
+            <form class="d-flex" method="post" action="/logout">
+                <button class="btn btn-outline-warning" type="submit">Logout</button>
+            </form>
+        {{/if}}
     </nav>
 
     <div class="container mt-5">
