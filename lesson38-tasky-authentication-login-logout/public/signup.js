@@ -13,7 +13,7 @@ function setup() {
 
 async function handlerSignup(inUsername, inPassword) {
     try{
-        const path = '/api/users/' + inUsername.value
+        const path = '/signup/' + inUsername.value
         const password = await digest(inPassword.value)
         const resp = await fetch(path, { 
             method: 'PUT',

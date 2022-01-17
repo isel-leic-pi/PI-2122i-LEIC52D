@@ -1,29 +1,69 @@
 'use strict'
 
-const router = require('express').Router()
+const express = require('express')
+const router = express.Router()
 const tasks = require('./tasks-in-mem')
 
+router.use(checkAlert)
 router.get('/', (req, res) => { res.render('index') })
-router.get('/signup', (req, res) => {
+router.get('/signup', getSignup)
+router.put('/signup/:username', putSignup)
+router.get('/users', getUsers)
+router.use('/users/:username', checkAuthentication)
+router.get('/users/:username/tasks', getUserTasks)
+router.get('/users/:username/tasks/:id', getUserTaskDetails)
+router.post('/users/:username/tasks', postUserTasks)
+
+function checkAlert(req, res, next) {
     const alert = req.session.alert
     delete req.session.alert
-    res.render('signup', { alert }) 
-})
-router.get('/users', getUsers)
-router.use((req, res, next) => {
+    res.locals.alert = alert
+    next()
+}
+
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
+function checkAuthentication(req, res, next) {
     if(!req.user) {
         req.session.alert = {
             title: 'Accedd Forbiden!',
             message: 'You should login/signup first to access tasks features.',
             kind: 'danger'
         }
-        res.redirect('/signup')
+        return res.redirect('/signup')
     }
-    else next()
-})
-router.get('/users/:username/tasks', getUserTasks)
-router.get('/users/:username/tasks/:id', getUserTaskDetails)
-router.post('/users/:username/tasks', postUserTasks)
+    if(req.user.username != req.params.username) {
+        req.session.alert = {
+            title: 'Accedd Forbiden!',
+            message: 'You can only access your tasks. You cannot access other users!',
+            kind: 'warning'
+        }
+        return res.redirect(req.headers.referer)
+    }
+    next()
+}
+
+function getSignup(req, res) {
+    res.render('signup') 
+}
+
+function putSignup (req, res, next) {
+    tasks
+        .insertUser(req.params.username, req.body.pass)
+        .then(() => tasks.getUser(req.params.username))
+        .then(user => req.logIn(user, err => {
+            if(err) return next(err)
+            req.session.alert = {
+                title: 'Signup Successfully!',
+                message: req.params.username + ' has signned up with success!',
+                kind: 'success'
+            }    
+            res.status(201).end()
+        }))
+        .catch(next)
+}
 
 function getUsers(req, res, next) {
     tasks
