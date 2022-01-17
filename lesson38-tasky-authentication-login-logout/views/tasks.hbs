@@ -1,0 +1,45 @@
+<script src="/tasky-delete.js" type="text/javascript"></script>
+
+<div class="col-sm-10">
+    <h2>New Task:</h2>
+    <form method="post">
+        <div class="row">
+            <div class="col">
+                <input type="text" class="form-control" placeholder="Title" name="title">
+            </div>
+            <div class="col">
+                <input type="text" class="form-control" placeholder="Description" name="desc">
+            </div>
+            <div class="col">
+                <input type="date" class="form-control" placeholder="Due Date" name="dueDate">
+            </div>
+            <div class="col">
+                <input type="submit" class="form-control btn-primary">
+            </div>
+        </div>
+    </form>
+    <br>
+    <hr>
+    <h2>Tasks:</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">Title</th>
+                <th scope="col">Description</th>
+                <th scope="col">Due Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each tasks}}
+            <tr>
+                <td><button class="btn btn-danger" data-task-id="{{id}}">DELETE</button></td>
+                <td><a href="tasks/{{id}}">{{title}}</a></td>
+                <td> {{description}} </td>
+                <td> {{dueDate}} </td>
+            </tr>
+            {{/each}}
+
+
+        </tbody>
+    </table>
+</div>

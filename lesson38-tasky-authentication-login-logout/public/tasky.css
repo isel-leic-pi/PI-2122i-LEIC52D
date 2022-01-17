@@ -1,0 +1,7 @@
+.nav-bar {
+    font-style: italic;
+}
+div h1 { /* div && h1 */
+    font-size: large;
+    color: green;
+}
